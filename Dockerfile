@@ -6,12 +6,14 @@ RUN composer create-project laravel/laravel . "^12.0" --no-interaction --prefer-
 WORKDIR /app
 RUN cp -a /skeleton/. /app/
 COPY . /app/
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN rm -f bootstrap/cache/*.php \
+    && composer install --no-dev --optimize-autoloader --no-interaction
 
 FROM php:8.3-cli
+RUN docker-php-ext-install pdo_pgsql
 WORKDIR /var/www/html
 COPY --from=build /app /var/www/html
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache
 USER www-data
-CMD ["sh", "-c", "php artisan config:clear && php artisan migrate --force && php artisan db:seed --class=CategorySeeder --force && php -S 0.0.0.0:${PORT:-10000} -t public server.php"]
+CMD ["sh", "-c", "php artisan config:clear && if [ -n \"${DB_URL:-}\" ]; then php artisan migrate --force && php artisan db:seed --class=CategorySeeder --force; fi && php -S 0.0.0.0:${PORT:-10000} -t public server.php"]
