@@ -9,7 +9,7 @@ COPY . /app/
 RUN rm -f bootstrap/cache/*.php \
     && composer install --no-dev --optimize-autoloader --no-interaction
 
-FROM php:8.3-cli
+FROM php:8.4-cli
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libpq-dev \
     && docker-php-ext-install pdo_pgsql \
