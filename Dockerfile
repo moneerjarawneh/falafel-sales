@@ -14,4 +14,4 @@ COPY --from=build /app /var/www/html
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache
 USER www-data
-CMD ["sh", "-c", "php artisan config:clear && php -S 0.0.0.0:${PORT:-10000} -t public server.php"]
+CMD ["sh", "-c", "php artisan config:clear && php artisan migrate --force && php artisan db:seed --class=CategorySeeder --force && php -S 0.0.0.0:${PORT:-10000} -t public server.php"]
